@@ -22,11 +22,7 @@ def find_student_by_id(id):
     matches = (student for student in MAP_OF_STUDENTS.keys() if student.id == id)
     return next(matches)
 
-def find_project_by_id(id):
-    matches = (project for project in MAP_OF_PROJECTS.keys() if project.id == 'P1')
-    return next(matches)
-
-def read_file():
+def read_file_and_create_sets():
     data_file = open('entradaProj2TAG.txt', 'r')
     Lines = data_file.readlines()
 
@@ -38,11 +34,13 @@ def read_file():
     STUDENTS_END_LINE = 250
 
     for line in Lines:
+        # Create projects
         if PROJECTS_START_LINE <= count and count <= PROJECTS_END_LINE:
             project_data = line.strip().split()
             project = Project(project_data[0], project_data[1], project_data[2])
             MAP_OF_PROJECTS[project] = []
 
+        # Create students
         if STUDENTS_START_LINE <= count and count <= STUDENTS_END_LINE:
             student_data = line.strip().split()
             student = Student(student_data[0], student_data[4])
@@ -57,8 +55,13 @@ def read_file():
 
         count += 1
 
-read_file()
 
+
+def main():
+    read_file_and_create_sets()
+
+
+main()
 # project = find_project_by_id('P1')
 # print(project)
 # print(len(MAP_OF_PROJECTS[project]))
