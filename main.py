@@ -1,3 +1,5 @@
+from functools import cmp_to_key
+
 MAP_OF_PROJECTS = {};
 MAP_OF_STUDENTS = {};
 
@@ -54,24 +56,19 @@ def read_file_and_create_sets():
 
         count += 1
 
-def compare(item1, item2):
-    if item1.grade < item2.grade:
-        return -1
-    elif item1.grade > item2.grade:
-        return 1
-    else:
-        return 0
+def student_key(item):
+    return int(item.grade)
 
 def addStudent(student, project):
-    removed_student = MAP_OF_PROJECTS[-1]
-    MAP_OF_PROJECTS[project] = MAP_OF_PROJECTS[:-1]
-    MAP_OF_PROJECTS[project] = MAP_OF_PROJECTS[project] = [student]
-    MAP_OF_PROJECTS[project] = MAP_OF_PROJECTS[project].sort(key=compare)
+    removed_student = MAP_OF_PROJECTS[project][-1]
+    MAP_OF_PROJECTS[project] = MAP_OF_PROJECTS[project][:-1]
+    MAP_OF_PROJECTS[project] = MAP_OF_PROJECTS[project] + [student]
+    MAP_OF_PROJECTS[project] = sorted(MAP_OF_PROJECTS[project], key=student_key)
     return removed_student
 
 def studentMoreSuitable(student, project):
-    # if staudent had a better grade that everyone else return true
-    # if not, return false
+    # if student had a better grade than everyone else returns true
+    # if not, returns false
     return False
 
 def run():
