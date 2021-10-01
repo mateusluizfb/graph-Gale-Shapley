@@ -50,15 +50,69 @@ def read_file_and_create_sets():
             for student_project_id in student_projects_ids:
                 matches = (project for project in MAP_OF_PROJECTS.keys() if project.id == student_project_id)
                 project = next(matches)
-                MAP_OF_PROJECTS[project] = MAP_OF_PROJECTS[project] + [student]
                 MAP_OF_STUDENTS[student] = MAP_OF_STUDENTS[student] + [project]
 
         count += 1
 
+def compare(item1, item2):
+    if item1.grade < item2.grade:
+        return -1
+    elif item1.grade > item2.grade:
+        return 1
+    else:
+        return 0
+
+def addStudent(student, project):
+    removed_student = MAP_OF_PROJECTS[-1]
+    MAP_OF_PROJECTS[project] = MAP_OF_PROJECTS[:-1]
+    MAP_OF_PROJECTS[project] = MAP_OF_PROJECTS[project] = [student]
+    MAP_OF_PROJECTS[project] = MAP_OF_PROJECTS[project].sort(key=compare)
+    return removed_student
+
+def studentMoreSuitable(student, project):
+    # if staudent had a better grade that everyone else return true
+    # if not, return false
+    return False
+
+def run():
+    students_available = MAP_OF_STUDENTS.keys()
+    projects_available = MAP_OF_STUDENTS
+
+    while len(students_available) != 0:
+        for student in MAP_OF_STUDENTS.keys():
+            project = MAP_OF_STUDENTS[student][0]
+
+            if len(MAP_OF_PROJECTS[project]) == 0:
+                if project.minimum_grade <= student.grade:
+                    MAP_OF_PROJECTS[project] = [student]
+                    students_available = list(filter(lambda s: s == student, students_available))
+            else:
+                if studentMoreSuitable(student, project):
+                    removed_student = addStudent(student, project)
+                    students_available = list(filter(lambda s: s == student, students_available)) + [removed_student]
+                else:
+                    print('nop')
+
+            MAP_OF_STUDENTS[student] = list(filter(lambda p: p == project, MAP_OF_STUDENTS[student]))
+
+
+def print_students(students):
+    if len(students) == 0:
+        return []
+
+    students_ids = []
+    for student in students:
+        students_ids.append(student.id)
+
+    return students_ids
 
 
 def main():
     read_file_and_create_sets()
+    run()
+
+    for key in MAP_OF_PROJECTS.keys():
+        print(f"{key.id} : {print_students(MAP_OF_PROJECTS[key])}")
 
 
 main()
