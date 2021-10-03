@@ -59,38 +59,54 @@ def read_file_and_create_sets():
 def student_key(item):
     return int(item.grade)
 
-def addStudent(student, project):
-    removed_student = MAP_OF_PROJECTS[project][-1]
-    MAP_OF_PROJECTS[project] = MAP_OF_PROJECTS[project][:-1]
-    MAP_OF_PROJECTS[project] = MAP_OF_PROJECTS[project] + [student]
-    MAP_OF_PROJECTS[project] = sorted(MAP_OF_PROJECTS[project], key=student_key)
-    return removed_student
+def all_project_students():
+    students = []
+    for project in MAP_OF_PROJECTS.keys():
+        students = students + MAP_OF_PROJECTS[project]
 
-def studentMoreSuitable(student, project):
-    # if student had a better grade than everyone else returns true
-    # if not, returns false
-    return False
-
+    return students
+    
 def run():
-    students_available = MAP_OF_STUDENTS.keys()
-    projects_available = MAP_OF_STUDENTS
 
-    while len(students_available) != 0:
+    students_waitlist = []
+    students_without_project = []
+
+    while len(students_waitlist) < len(MAP_OF_STUDENTS.keys()):
         for student in MAP_OF_STUDENTS.keys():
-            project = MAP_OF_STUDENTS[student][0]
+            if student not in students_waitlist:
+                if len(MAP_OF_STUDENTS[student]) == 0:
+                    students_without_project = students_without_project + [student]
+                    continue
 
-            if len(MAP_OF_PROJECTS[project]) == 0:
-                if project.minimum_grade <= student.grade:
-                    MAP_OF_PROJECTS[project] = [student]
-                    students_available = list(filter(lambda s: s == student, students_available))
-            else:
-                if studentMoreSuitable(student, project):
-                    removed_student = addStudent(student, project)
-                    students_available = list(filter(lambda s: s == student, students_available)) + [removed_student]
-                else:
-                    print('nop')
+                project = MAP_OF_STUDENTS[student][0]
+                MAP_OF_PROJECTS[project] = MAP_OF_PROJECTS[project] + [student]
 
-            MAP_OF_STUDENTS[student] = list(filter(lambda p: p == project, MAP_OF_STUDENTS[student]))
+        projects_with_more_student = list(filter(lambda p: int(p.seats) < len(MAP_OF_PROJECTS[p]), MAP_OF_PROJECTS.keys()))
+
+        for project in projects_with_more_student:
+            # escolhe so os melhores pro projeto
+            MAP_OF_PROJECTS[project] = sorted(MAP_OF_PROJECTS[project], key=student_key)
+            MAP_OF_PROJECTS[project] = list(filter(lambda s: project.minimum_grade <= s.grade, MAP_OF_PROJECTS[project]))
+
+            new_students_list = MAP_OF_PROJECTS[project]
+            students_to_remove = []
+            for i in range(len(MAP_OF_PROJECTS[project]) - int(project.seats)):
+                students_to_remove = students_to_remove + [new_students_list.pop()]
+            MAP_OF_PROJECTS[project] = new_students_list
+
+            # remove o projeto da lista de projetos para propor
+            for student in students_to_remove:
+                new_projects = []
+                first_removed = False
+                for project_to_validate in MAP_OF_STUDENTS[student]:
+                    if project_to_validate == project and first_removed == False:
+                        first_removed = True
+                    else:
+                        new_projects = new_projects + [project_to_validate]
+
+                MAP_OF_STUDENTS[student] = new_projects
+
+        students_waitlist = students_without_project + all_project_students()
 
 
 def print_students(students):
@@ -103,14 +119,24 @@ def print_students(students):
 
     return students_ids
 
+def print_projects(projects):
+    if len(projects) == 0:
+        return []
+
+    project_ids = []
+    for project in projects:
+        project_ids.append(project.id)
+
+    return project_ids
+
+def print_all():
+    for key in MAP_OF_PROJECTS.keys():
+        print(f"{key.id} : {print_students(MAP_OF_PROJECTS[key])}")
 
 def main():
     read_file_and_create_sets()
     run()
-
-    for key in MAP_OF_PROJECTS.keys():
-        print(f"{key.id} : {print_students(MAP_OF_PROJECTS[key])}")
-
+    print_all()
 
 main()
 # project = find_project_by_id('P1')
