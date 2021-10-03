@@ -77,8 +77,14 @@ def remove_student(students_to_remove, project):
 def run():
     students_waitlist = []
     students_without_project = []
+    count = 0
 
     while len(students_waitlist) < len(MAP_OF_STUDENTS.keys()):
+        print('--------------------------------------')
+        print(f'---- INICIO DA ITERAÇÃ0 {count} (PROJETO: LISTA DE ALUNOS): ----')
+
+        print_all()
+
         for student in MAP_OF_STUDENTS.keys():
             if student not in students_waitlist:
                 if len(MAP_OF_STUDENTS[student]) == 0:
@@ -108,6 +114,12 @@ def run():
 
         students_waitlist = students_without_project + all_project_students()
 
+        print(f'---- RESUTADO DA ITERAÇÃ0 {count} (PROJETO: LISTA DE ALUNOS): ----')
+        print_all()
+
+        count += 1
+
+
 # retorna a lista de ids dos estudantes
 def list_students(students):
     if len(students) == 0:
@@ -126,6 +138,9 @@ def print_all():
 def main():
     read_file_and_create_sets()
     run()
+    print('|')
+    print(f'---- ITERAÇÃ0 FINAL (PROJETO: LISTA DE ALUNOS) ----')
+    print('|')
     print_all()
 
 main()
